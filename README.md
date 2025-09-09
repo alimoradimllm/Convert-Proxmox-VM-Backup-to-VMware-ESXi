@@ -1,54 +1,70 @@
-# Convert Proxmox VM Backup to VMware/ESXi
+# Convert Proxmox Backups to VMware/ESXi
 
-This repository provides a step-by-step guide to convert a Proxmox VM backup (`.vma.zst`) into a VMware-compatible `.vmdk` disk image.
+Easily convert Proxmox VM backups (`.vma.zst`) into VMware-compatible virtual disks (`.vmdk`) for use with VMware Workstation, Fusion, or ESXi.  
+This guide provides a simple step-by-step process to extract, convert, and import your Proxmox virtual machines into a VMware environment.  
 
-## Prerequisites
+---
 
-Install the required tools:
+## 🚀 Prerequisites
+
+Make sure the following tools are installed on your Linux system:
 
 ```bash
 sudo apt update
 sudo apt install zstd qemu-utils
 ```
 
-## Steps to Convert
+---
 
-1. **Place your Proxmox backup file (`your-backup.vma.zst`) in your working directory.**
+## 🔄 Conversion Steps
 
-2. **Decompress the backup file:**
+1. **Place your backup file in the working directory**  
+   Copy your Proxmox backup file (`your-backup.vma.zst`) to the folder where you’ll perform the conversion.
 
-```bash
-unzstd your-backup.vma.zst
-```
+2. **Decompress the backup file**  
+   Convert the compressed `.zst` file into a `.vma` archive:
 
-This will produce a `.vma` file.
+   ```bash
+   unzstd your-backup.vma.zst
+   ```
 
-3. **Extract the contents of the `.vma` file:**
+   This produces a `.vma` file.
 
-```bash
-vma extract your-backup.vma ./extracted
-```
+3. **Extract the `.vma` archive**  
+   Use the `vma` tool to unpack the contents:
 
-This will create an `extracted` directory containing disk files (e.g., `disk-drive-scsi0.raw`).
+   ```bash
+   vma extract your-backup.vma ./extracted
+   ```
 
-4. **Convert the RAW disk to VMDK format:**
+   This will create an `extracted` directory containing the VM disk(s), such as `disk-drive-scsi0.raw`.
 
-```bash
-qemu-img convert -f raw -O vmdk ./extracted/disk-drive-scsi0.raw vm-disk.vmdk
-```
+4. **Convert RAW disk to VMDK**  
+   Transform the Proxmox RAW disk into VMware’s `.vmdk` format:
 
-5. **Import the `vm-disk.vmdk` into VMware Workstation or ESXi.**
+   ```bash
+   qemu-img convert -f raw -O vmdk ./extracted/disk-drive-scsi0.raw vm-disk.vmdk
+   ```
 
-   - Create a new VM in VMware and select **"Use an existing virtual disk"**.
-   - Point it to `vm-disk.vmdk`.
-
-## Notes
-
-- Ensure the VM hardware configuration (e.g., number of CPUs, RAM, disk controller type) in VMware matches the original Proxmox VM settings.
-- You can use `qemu-img info <filename>` to inspect disk format and details if needed.
+5. **Import into VMware**  
+   - Create a new VM in VMware Workstation, Fusion, or ESXi.  
+   - Select **"Use an existing virtual disk"** and point it to `vm-disk.vmdk`.
 
 ---
 
-## License
+## 📌 Notes
 
-This project is licensed under the [MIT License](LICENSE).
+- Ensure the VM hardware configuration (CPUs, memory, disk controller type, etc.) in VMware matches the original Proxmox VM.  
+- You can inspect disk details with:
+
+  ```bash
+  qemu-img info vm-disk.vmdk
+  ```
+
+- If your VM has multiple disks, repeat the conversion for each RAW disk file.
+
+---
+
+## 📜 License
+
+This project is licensed under the [MIT License](LICENSE).  
